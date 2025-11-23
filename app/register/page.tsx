@@ -2,49 +2,30 @@
 
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, email, password);
       router.push("/");
     } catch (err) {
-      alert("Login failed: " + err);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      router.push("/");
-    } catch (err) {
-      alert("Google login failed: " + err);
+      alert("Registration failed: " + err);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Register</h1>
 
-        <button
-          onClick={handleGoogleLogin}
-          className="w-full py-2 mb-4 bg-red-500 text-white rounded hover:bg-red-600 transition"
-        >
-          Sign in with Google
-        </button>
-
-        <hr className="my-4" />
-
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="email"
             placeholder="Email"
@@ -63,14 +44,14 @@ export default function LoginPage() {
           />
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            className="w-full py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
           >
-            Login
+            Register
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm">
-          Don’t have an account? <a href="/register" className="text-blue-600">Register</a>
+          Already have an account? <a href="/login" className="text-blue-600">Login</a>
         </p>
       </div>
     </div>

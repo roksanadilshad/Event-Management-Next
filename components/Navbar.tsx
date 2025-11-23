@@ -24,12 +24,18 @@ export default function Navbar() {
         </div>
 
         {/* Login / After Login Placeholder */}
-        <div className="hidden md:block">
+        <div className="hidden md:block *:m-2">
           <Link
             href="/login"
             className="px-4 py-2 bg-[#EE6983] text-white rounded-md hover:bg-[#850E35]"
           >
             Login
+          </Link>
+          <Link
+            href="/register"
+            className="px-4 py-2 bg-[#EE6983] text-white rounded-md hover:bg-[#850E35]"
+          >
+            Register
           </Link>
         </div>
 
