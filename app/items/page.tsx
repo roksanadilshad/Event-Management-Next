@@ -12,35 +12,39 @@ interface Item {
 
 export default function ItemsPage() {
   const [items, setItems] = useState<Item[]>([]);
-   const [searchTerm, setSearchTerm] = useState(""); // input value
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+  const [searchTerm, setSearchTerm] = useState(""); 
+  const [loading, setLoading] = useState(false);
 
-
-  useEffect(() => {
-  const fetchItems = async () => {
+  const fetchItems = async (search: string = "") => {
+    setLoading(true);
     try {
-      const res = await fetch("/api/items");
+      const res = await fetch(`/api/items${search ? `?search=${encodeURIComponent(search)}` : ""}`);
       const data: Item[] = await res.json();
-
-      // replace state, do NOT append
       setItems(data);
-      setFilteredItems(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  fetchItems();
-}, []);
+  // Initial fetch
+  useEffect(() => {
+    fetchItems();
+  }, []);
 
-   const handleSearch = () => {
-    const term = searchTerm.toLowerCase();
-    const filtered = items.filter(item =>
-      item.title.toLowerCase().includes(term) ||
-      item.description.toLowerCase().includes(term)
-    );
-    setFilteredItems(filtered);
+  // Handle search button click
+  const handleSearch = () => {
+    fetchItems(searchTerm); 
   };
+
+  // Optional: search as you type
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     fetchItems(searchTerm);
+  //   }, 300);
+  //   return () => clearTimeout(timer);
+  // }, [searchTerm]);
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -64,28 +68,34 @@ export default function ItemsPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filteredItems.map((item) => (
-          <div key={item._id} className="border rounded p-4 shadow">
-            <img
-              src={item.image}
-              className="h-40 w-full object-cover rounded"
-            />
-            <h2 className="font-semibold mt-2">{item.title}</h2>
-            <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
-            <p className="font-semibold text-blue-600 mt-2">${item.price}</p>
+      {loading ? (
+        <p className="text-center text-gray-500 mt-10">Loading items...</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {items.map((item) => (
+            <div key={item._id} className="border rounded p-4 shadow">
+              {item.image && (
+                <img
+                  src={item.image}
+                  className="h-40 w-full object-cover rounded"
+                />
+              )}
+              <h2 className="font-semibold mt-2">{item.title}</h2>
+              <p className="text-sm text-gray-600 line-clamp-2">{item.description}</p>
+              <p className="font-semibold text-blue-600 mt-2">${item.price}</p>
 
-            <Link
-              href={`/items/${item._id}`} // safe string
-              className="mt-3 inline-block bg-blue-500 text-white px-3 py-1 rounded"
-            >
-              Details
-            </Link>
-          </div>
-        ))}
-      </div>
+              <Link
+                href={`/items/${item._id}`}
+                className="mt-3 inline-block bg-blue-500 text-white px-3 py-1 rounded"
+              >
+                Details
+              </Link>
+            </div>
+          ))}
+        </div>
+      )}
 
-      {filteredItems.length === 0 && (
+      {items.length === 0 && !loading && (
         <p className="text-center text-gray-500 mt-10">No items found.</p>
       )}
     </div>

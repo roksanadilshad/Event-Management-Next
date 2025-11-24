@@ -6,7 +6,6 @@ export default function Home() {
   return (
     <div>
       <Hero />
-      {/* Other sections will go here */}
     </div>
   );
 }

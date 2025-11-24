@@ -8,13 +8,17 @@ import toast from "react-hot-toast";
 
 // Event interface
 interface EventItem {
-  _id: string;
+  id: string;
   title: string;
-  shortDesc: string;
-  fullDesc: string;
+  fullDescription: string;
+  shortDescription: string;
+  date: string;
+  time: string;
+  location: string;
+  category: string;
   price: number;
+  priority: string;
   imageUrl: string;
-  userId?: string;
 }
 
 // Add Event Form component
@@ -26,6 +30,10 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
   const [fullDesc, setFullDesc] = useState("");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+   const [time, setTime] = useState("");
+  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
+  const [priority, setPriority] = useState("");
   const router = useRouter();
 
  useEffect(() => {
@@ -44,24 +52,27 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
   if (checkingAuth) return <p className="p-6">Checking authentication...</p>;
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       const res = await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title,
-           shortDesc,
-            fullDesc,
-             price,
-              imageUrl ,
-              userId: user.uid,
-            }),
+        body: JSON.stringify({
+          title,
+          shortDesc,
+          fullDesc,
+          price,
+          imageUrl,
+          time,
+          location,
+          category,
+          priority,
+          userId: user.uid,
+        }),
       });
 
       const data = await res.json();
-
       if (!data.success) {
         toast.error("Failed to add event");
         return;
@@ -70,16 +81,11 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
       toast.success("Event added successfully!");
 
       // Clear form
-      setTitle("");
-      setShortDesc("");
-      setFullDesc("");
-      setPrice("");
-      setImageUrl("");
+      setTitle(""); setShortDesc(""); setFullDesc(""); setPrice(""); setImageUrl("");
+      setTime(""); setLocation(""); setCategory(""); setPriority("");
 
-      // Add new event to parent list
       onAdd(data.event);
       router.push("/items");
-      
     } catch (err) {
       console.error(err);
       toast.error("Error adding event");
@@ -129,6 +135,14 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
           onChange={(e) => setImageUrl(e.target.value)}
           className="w-full p-2 border rounded"
         />
+        <input type="text" placeholder="Time (e.g., 09:00 AM - 05:00 PM)" value={time} onChange={(e) => setTime(e.target.value)} className="w-full p-2 border rounded" />
+
+        <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} className="w-full p-2 border rounded" />
+
+        <input type="text" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-2 border rounded" />
+
+        <input type="text" placeholder="Priority (Low/Medium/High)" value={priority} onChange={(e) => setPriority(e.target.value)} className="w-full p-2 border rounded" />
+
         <button
           type="submit"
           className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -179,8 +193,8 @@ export default function EventsDashboard() {
     const filtered = events.filter(
       (e) =>
         e.title.toLowerCase().includes(term) ||
-        e.shortDesc.toLowerCase().includes(term) ||
-        e.fullDesc.toLowerCase().includes(term)
+        e.shortDescription.toLowerCase().includes(term) ||
+        e.fullDescription.toLowerCase().includes(term)
     );
     setFilteredEvents(filtered);
   };
@@ -192,8 +206,8 @@ export default function EventsDashboard() {
       const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
 
-      setEvents((prev) => prev.filter((e) => e._id !== id));
-      setFilteredEvents((prev) => prev.filter((e) => e._id !== id));
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+      setFilteredEvents((prev) => prev.filter((e) => e.id !== id));
       toast.success("Event deleted!");
     } catch (err) {
       console.error(err);
@@ -234,7 +248,7 @@ export default function EventsDashboard() {
       {/* Event List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredEvents.map((event) => (
-          <div key={event._id} className="border rounded p-4 shadow">
+          <div key={event?.id} className="border rounded p-4 shadow">
             {event?.imageUrl && (
               <img
                 src={event.imageUrl}
@@ -242,18 +256,18 @@ export default function EventsDashboard() {
               />
             )}
             <h2 className="font-semibold mt-2">{event?.title}</h2>
-            <p className="text-sm text-gray-600 line-clamp-2">{event.shortDesc}</p>
+            <p className="text-sm text-gray-600 line-clamp-2">{event?.shortDescription}</p>
             <p className="font-semibold text-blue-600 mt-2">${event.price}</p>
 
             <div className="mt-3 flex gap-2">
               <Link
-                href={`/events/${event._id}`}
+                href={`/events/${event.id}`}
                 className="bg-green-500 text-white px-3 py-1 rounded"
               >
                 Details
               </Link>
               <button
-                onClick={() => handleDelete(event._id)}
+                onClick={() => handleDelete(event.id)}
                 className="bg-red-500 text-white px-3 py-1 rounded"
               >
                 Delete

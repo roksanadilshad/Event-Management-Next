@@ -12,7 +12,11 @@ interface Product {
   shortDesc: string;
   fullDesc: string;
   price: number;
-  imageUrl?: string;
+  image?: string;
+  time?: string;
+  location?: string;
+  category?: string;
+  priority?: string;
   createdAt: string;
   createdBy: string;
 }
@@ -29,6 +33,10 @@ export default function Dashboard() {
   const [editFullDesc, setEditFullDesc] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
+  const [editTime, setEditTime] = useState("");
+const [editLocation, setEditLocation] = useState("");
+const [editCategory, setEditCategory] = useState("");
+const [editPriority, setEditPriority] = useState("");
 
   const router = useRouter();
 
@@ -87,7 +95,11 @@ export default function Dashboard() {
     setEditShortDesc(product.shortDesc);
     setEditFullDesc(product.fullDesc);
     setEditPrice(product.price.toString());
-    setEditImageUrl(product.imageUrl || "");
+    setEditImageUrl(product.image || "");
+    setEditTime(product.time || "");
+    setEditLocation(product.location || "");
+    setEditCategory(product.category || "");
+    setEditPriority(product.priority || "");
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -104,6 +116,10 @@ export default function Dashboard() {
           fullDesc: editFullDesc,
           price: editPrice,
           imageUrl: editImageUrl,
+          time: editTime,
+          location: editLocation,
+          category: editCategory,
+          priority: editPriority,
         }),
       });
       const data = await res.json();
@@ -136,9 +152,9 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <div key={product._id} className="bg-white rounded shadow p-4">
-              {product.imageUrl && (
+              {product.image && (
                 <img
-                  src={product.imageUrl}
+                  src={product.image}
                   alt={product.title}
                   className="h-40 w-full object-cover rounded mb-4"
                 />
@@ -214,6 +230,37 @@ export default function Dashboard() {
                 className="w-full p-2 border rounded"
                 placeholder="Image URL (optional)"
               />
+              <input
+  type="text"
+  value={editTime}
+  onChange={(e) => setEditTime(e.target.value)}
+  className="w-full p-2 border rounded"
+  placeholder="Time (e.g., 09:00 AM - 05:00 PM)"
+/>
+
+<input
+  type="text"
+  value={editLocation}
+  onChange={(e) => setEditLocation(e.target.value)}
+  className="w-full p-2 border rounded"
+  placeholder="Location"
+/>
+
+<input
+  type="text"
+  value={editCategory}
+  onChange={(e) => setEditCategory(e.target.value)}
+  className="w-full p-2 border rounded"
+  placeholder="Category"
+/>
+
+<input
+  type="text"
+  value={editPriority}
+  onChange={(e) => setEditPriority(e.target.value)}
+  className="w-full p-2 border rounded"
+  placeholder="Priority (Low/Medium/High)"
+/>
               <div className="flex gap-2 mt-2">
                 <button
                   type="submit"

@@ -12,22 +12,31 @@ export async function GET(
     await client.connect();
     const db = client.db("eventsDB");
 
-    const rawItem = await db
+    const rawItem = (await db
       .collection("items")
-      .findOne({ _id: new ObjectId(id) });
+      .findOne({ _id: new ObjectId(id) })) ||
+     (await db
+      .collection("newEvent")
+      .findOne({ _id: new ObjectId(id) }));
+
 
     if (!rawItem)
       return NextResponse.json({ message: "Item not found" }, { status: 404 });
 
- 
-      const item = {
+ const item = {
       _id: rawItem._id.toString(),
       title: rawItem.title,
-      description: rawItem.description,
-      date: rawItem.date,
-      location: rawItem.location,
-      image: rawItem.image,
-      price: rawItem.cost,
+      fullDescription:
+        rawItem.fullDescription || rawItem.fullDesc || "",
+      shortDescription:
+        rawItem.shortDescription || rawItem.shortDesc || "",
+      date: rawItem.date || "",
+      time: rawItem.time || "",
+      location: rawItem.location || "",
+      category: rawItem.category || "",
+      image: rawItem.image || "", // <-- FIXED
+      price: rawItem.price || 0,
+      priority: rawItem.priority || 0,
     };
 
      return NextResponse.json(item);
