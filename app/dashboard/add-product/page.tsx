@@ -54,11 +54,11 @@ export default function AddProduct() {
       const data = await res.json();
 
       if (!data.success) {
-        toast.error("Failed to add product");
+        toast.error("Failed to add event");
         return;
       }
 
-      toast.success("Product added successfully!");
+      toast.success("Eevent added successfully!");
 
       // Reset form
       setTitle("");
@@ -66,6 +66,8 @@ export default function AddProduct() {
       setFullDesc("");
       setPrice("");
       setImageUrl("");
+
+      router.push("/items");
 
     } catch (err) {
       console.error(err);
