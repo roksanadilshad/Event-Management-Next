@@ -2,9 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function Navbar() {
+  const {user} = useAuth()
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut(auth);
+  };
 
   return (
     <nav className="sticky top-0 bg-[#FFC4C4] shadow-md z-50">
@@ -20,11 +28,51 @@ export default function Navbar() {
           <Link href="/" className="hover:text-[#FCF5EE]">Home</Link>
           <Link href="/items" className="hover:text-[#FCF5EE]">Events</Link>
           <Link href="/about" className="hover:text-[#FCF5EE]">About</Link>
-          <Link href="/contact" className="hover:text-[#FCF5EE]">Contact</Link>
-        </div>
+          
+          {/* If user logged in */}
+          {user ? (
+            <div className="relative">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="flex items-center gap-2 px-3 py-2 border rounded hover:bg-gray-100"
+              >
+                <img
+                  src={user.photoURL || "/default-avatar.png"}
+                  alt="user"
+                  className="w-7 h-7 rounded-full"
+                />
+                <span>{user.displayName || "User"}</span>
+              </button>
 
-        {/* Login / After Login Placeholder */}
-        <div className="hidden md:block *:m-2">
+              {/* Dropdown */}
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow rounded p-2 border">
+                  <Link
+                    href="/dashboard/add-product"
+                    className="block px-3 py-2 hover:bg-gray-100 rounded"
+                  >
+                    Add Product
+                  </Link>
+
+                  <Link
+                    href="/dashboard/manage-products"
+                    className="block px-3 py-2 hover:bg-gray-100 rounded"
+                  >
+                    Manage Products
+                  </Link>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-3 py-2 mt-1 bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            // If user NOT logged in
+            <div className="hidden md:block *:m-2">
           <Link
             href="/login"
             className="px-4 py-2 bg-[#EE6983] text-white rounded-md hover:bg-[#850E35]"
@@ -38,6 +86,11 @@ export default function Navbar() {
             Register
           </Link>
         </div>
+          )}
+        </div>
+
+        {/* Login / After Login Placeholder */}
+        
 
         {/* Mobile Menu Button */}
         <button

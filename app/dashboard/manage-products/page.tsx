@@ -1,48 +1,27 @@
 "use client";
 
-import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function ManageProductsPage() {
-  const { user } = useAuth();
-  const router = useRouter();
-  const [products, setProducts] = useState([
-    { id: 1, title: "Event 1", price: "$10" },
-    { id: 2, title: "Event 2", price: "$20" },
-  ]);
+export default function ManageProducts() {
+  const [products, setProducts] = useState([]);
 
-  if (!user) {
-    router.push("/login");
-    return null;
-  }
-
-  const handleDelete = (id: number) => {
-    setProducts(products.filter((p) => p.id !== id));
-  };
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
+  }, []);
 
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Manage Products</h1>
-      <div className="grid md:grid-cols-2 gap-4">
-        {products.map((p) => (
-          <div key={p.id} className="border p-4 rounded shadow hover:shadow-md transition">
-            <h2 className="font-semibold text-xl">{p.title}</h2>
-            <p className="text-gray-600">{p.price}</p>
-            <div className="mt-2 flex gap-2">
-              <button
-                onClick={() => alert(`View ${p.title}`)}
-                className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                View
-              </button>
-              <button
-                onClick={() => handleDelete(p.id)}
-                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
+    <div className="p-6">
+      <h1 className="text-xl font-bold mb-4">Manage Products</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {products.map((item: any) => (
+          <div key={item._id} className="p-4 border rounded">
+            <h2 className="font-semibold">{item.title}</h2>
+            <p>{item.shortDesc}</p>
+
+            <button className="text-blue-600 mt-2">View</button>
           </div>
         ))}
       </div>
