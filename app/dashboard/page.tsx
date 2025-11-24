@@ -95,7 +95,7 @@ export default function Dashboard() {
     if (!editingProduct) return;
 
     try {
-      const res = await fetch(`/api/events/${editingProduct._id}`, {
+      const res = await fetch(`/api/products/${editingProduct._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
