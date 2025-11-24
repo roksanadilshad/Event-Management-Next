@@ -8,6 +8,8 @@ export async function GET(req: NextRequest) {
     const db = client.db("eventsDB");
 
     const rawItems = await db.collection("items").find().toArray();
+    const rawNewEvents = await db.collection("newEvent").find().toArray();
+
 
     const items = rawItems.map(item => ({
       _id: item._id.toString(), // convert ObjectId to string
@@ -19,9 +21,23 @@ export async function GET(req: NextRequest) {
       price: item.cost
     }));
 
-    return NextResponse.json(items);
+    const newEvents = rawNewEvents.map(event => ({
+      _id: event._id.toString(),
+      title: event.title,
+      description: event.shortDesc || event.fullDesc || "", // match fields
+      date: event.date || "",
+      location: event.location || "",
+      image: event.imageUrl || "",
+      price: event.price || 0,
+    }));
+
+     const allItems = [...items, ...newEvents];
+
+    return NextResponse.json(allItems);
   } catch (error) {
     console.error("Failed to fetch items:", error);
     return NextResponse.json({ error: "Failed to fetch items" }, { status: 500 });
   }
 }
+
+

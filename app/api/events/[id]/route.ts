@@ -37,14 +37,6 @@ export async function DELETE(
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   const { id } = await params; 
   
-  // if (!ObjectId.isValid(id)) {
-  //     return NextResponse.json(
-  //       { success: false, message: "Invalid ID" },
-  //       { status: 400 }
-  //     );
-  //   }
-
-
   try {
     const body = await req.json();
     const client = await clientPromise;
