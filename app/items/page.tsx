@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { HashLoader } from "react-spinners";
 
 interface Item {
   _id: string;
   title: string;
-  description: string;
+  shortDescription: string;
   image: string;
   price: number;
 }
@@ -65,7 +66,12 @@ export default function ItemsPage() {
         </div>
 
         {loading ? (
-          <p className="text-center text-[#850E35]/70 mt-10">Loading items...</p>
+          <div className="flex justify-center py-40 items-center">
+                 <HashLoader
+                 color="#FFC4C4"
+                 size={100}
+               />
+    </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {items.map((item) => (
@@ -85,7 +91,7 @@ export default function ItemsPage() {
                 <h2 className="font-bold text-xl mt-4">{item.title}</h2>
 
                 <p className="text-sm text-[#850E35]/80 mt-2 line-clamp-3">
-                  {item.description}
+                  {item.shortDescription}
                 </p>
 
                 <p className="font-bold text-lg text-[#850E35] mt-3">

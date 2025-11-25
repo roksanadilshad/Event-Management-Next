@@ -119,7 +119,7 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-semibold text-lg mb-1">Phone</h3>
-              <p className="text-gray-700">+1 (555) 123-4567</p>
+              <p className="text-gray-700">+880 123-4567891</p>
             </div>
             <div>
               <h3 className="font-semibold text-lg mb-1">Address</h3>

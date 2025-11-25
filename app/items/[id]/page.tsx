@@ -1,4 +1,5 @@
 import BookNowButton from "@/components/BookButton";
+import ItemNotFound from "@/components/ItemNotFound";
 import Link from "next/link";
 
 interface Item {
@@ -48,9 +49,7 @@ const ItemPage = async ({ params }: Props) => {
 
   if (!item)
     return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-red-500 text-lg font-medium">Item not found</p>
-      </div>
+     <ItemNotFound></ItemNotFound>
     );
 console.log(relatedEvents)
   return (
@@ -103,7 +102,10 @@ console.log(relatedEvents)
 
               {/* Description */}
               <p className="text-[#850E35] leading-relaxed">
-                {item.fullDescription || item.shortDescription}
+                {item.shortDescription}
+              </p>
+              <p className="text-[#850E35] leading-relaxed">
+                {item.fullDescription}
               </p>
             </div>
 
@@ -113,6 +115,24 @@ console.log(relatedEvents)
                 eventId={item.id}
                 eventTitle={item.title}
               />
+             <div className="mt-6 w-full h-64 rounded-xl overflow-hidden shadow-lg">
+    {item.location && (
+    <div className="mt-6 w-full h-64 rounded-xl overflow-hidden shadow-lg">
+      <iframe
+        title="Event Location"
+        width="100%"
+        height="100%"
+        className="border-0"
+        loading="lazy"
+        allowFullScreen
+        src={`https://www.google.com/maps?q=${encodeURIComponent(
+          item.location
+        )}&output=embed`}
+      ></iframe>
+    </div>
+  )}
+  </div>
+              
             </div>
           </div>
         </div>

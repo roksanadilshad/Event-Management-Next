@@ -70,22 +70,22 @@ export default function Navbar() {
 
               {/* Dropdown */}
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow rounded p-2 border">
+                <div className="absolute right-0 mt-2 w-48 bg-[#850E35] text-[#FCF5EE] shadow rounded p-2 ">
                   <Link
                     href="/dashboard/add-product"
-                    className="block px-3 py-2 hover:bg-gray-100 rounded"
-                  >
+                    className="block px-3 py-2 hover:bg-[#FFC4C4] transition-all hover:text-[#850E35] rounded"
+                  > 
                     Add Product
                   </Link>
                   <Link
                     href="/dashboard/manage-products"
-                    className="block px-3 py-2 hover:bg-gray-100 rounded"
+                    className="block px-3 py-2 hover:bg-[#FFC4C4] transition-all hover:text-[#850E35] rounded"
                   >
                     Manage Products
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="w-full text-left px-3 py-2 mt-1 bg-red-500 text-white rounded hover:bg-red-600"
+                    className="w-full text-left px-3 py-2 mt-1 bg-[#EE6983] text-white rounded hover:bg-[#FFC4C4] transition-all hover:text-[#850E35]"
                   >
                     Logout
                   </button>
@@ -136,22 +136,22 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-2 bg-[#850E35] mt-2">
+            <div className="space-y-2 bg-[#850E35] text-[#FCF5EE] rounded-2xl mt-2">
               <Link
                 href="/dashboard/add-product"
-                className="block px-3 py-2 hover:bg-gray-100 rounded"
+                className="block px-3 py-2 hover:bg-[#FFC4C4] transition-all hover:text-[#850E35] rounded"
               >
                 Add Product
               </Link>
               <Link
                 href="/dashboard/manage-products"
-                className="block px-3 py-2 hover:bg-gray-100 rounded"
+                className="block px-3 py-2 hover:bg-[#FFC4C4] transition-all hover:text-[#850E35] rounded"
               >
                 Manage Products
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                className="w-full text-left px-3 py-2 bg-[#EE6983] text-white  hover:bg-[#FFC4C4] transition-all hover:text-[#850E35] rounded"
               >
                 Logout
               </button>

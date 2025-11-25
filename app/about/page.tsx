@@ -57,10 +57,10 @@ export default function AboutPage() {
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Meet the Team</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {[
-            { name: "Alex Johnson", role: "Founder & CEO", img: "https://i.pravatar.cc/150?img=1" },
-            { name: "Maria Smith", role: "CTO", img: "https://i.pravatar.cc/150?img=2" },
-            { name: "John Doe", role: "Lead Developer", img: "https://i.pravatar.cc/150?img=3" },
-            { name: "Sarah Lee", role: "Marketing Head", img: "https://i.pravatar.cc/150?img=4" },
+            { name: "Alex Johnson", role: "Founder & CEO", img: "https://i.pinimg.com/736x/c4/d8/f8/c4d8f8f64e1f00a5ca02253f5ecc27d0.jpg" },
+            { name: "Maria Smith", role: "CTO", img: "https://i.pinimg.com/736x/ce/32/2f/ce322ff5e85c6d107fee008193271512.jpg" },
+            { name: "John Doe", role: "Lead Developer", img: "https://i.pinimg.com/736x/32/72/fd/3272fdbde5f3f2a613b4bfa3bc3f9135.jpg" },
+            { name: "Sarah Lee", role: "Marketing Head", img: "https://i.pinimg.com/1200x/63/f3/a0/63f3a0fe0c318b623d9a431e2817b515.jpg" },
           ].map((member, idx) => (
             <motion.div
               key={idx}
