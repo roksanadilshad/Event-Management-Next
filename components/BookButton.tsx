@@ -22,7 +22,7 @@ export default function BookNowButton({ eventId, eventTitle }: BookNowButtonProp
       className={`inline-block font-medium px-6 py-3 rounded-lg shadow transition-colors ${
         booked
           ? "bg-green-600 text-white cursor-not-allowed"
-          : "bg-blue-600 text-white hover:bg-blue-700"
+          : "bg-[#850E35] text-[#FCF5EE] hover:bg-[#FCF5EE] transition-all  hover:text-[#850E35]"
       }`}
       disabled={booked}
     >

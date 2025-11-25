@@ -34,6 +34,9 @@ export default function Navbar() {
           <Link href="/about" className="hover:text-[#FCF5EE] transition">
             About
           </Link>
+          <Link href="/contact" className="hover:text-[#FCF5EE] transition">
+            Contact
+          </Link>
 
           {/* Auth Section */}
           {!user ? (

@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 
 // Event interface
 interface EventItem {
-  id: string;
+  _id: string;
   title: string;
   fullDescription: string;
   shortDescription: string;
@@ -18,7 +18,7 @@ interface EventItem {
   category: string;
   price: number;
   priority: string;
-  imageUrl: string;
+  image: string;
 }
 
 // Add Event Form component
@@ -63,7 +63,8 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
           shortDesc,
           fullDesc,
           price,
-          imageUrl,
+          image: imageUrl,   // FIX
+          date: new Date().toISOString(), // FIX (you were not sending date)
           time,
           location,
           category,
@@ -162,7 +163,8 @@ export default function EventsDashboard() {
   const [filteredEvents, setFilteredEvents] = useState<EventItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-
+  
+  console.log(filteredEvents);
   // Auth protection
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -206,8 +208,8 @@ export default function EventsDashboard() {
       const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
 
-      setEvents((prev) => prev.filter((e) => e.id !== id));
-      setFilteredEvents((prev) => prev.filter((e) => e.id !== id));
+      setEvents((prev) => prev.filter((e) => e._id !== id));
+      setFilteredEvents((prev) => prev.filter((e) => e._id !== id));
       toast.success("Event deleted!");
     } catch (err) {
       console.error(err);
@@ -248,10 +250,10 @@ export default function EventsDashboard() {
       {/* Event List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredEvents.map((event) => (
-          <div key={event?.id} className="border rounded p-4 shadow">
-            {event?.imageUrl && (
+          <div key={event._id} className="border rounded p-4 shadow">
+            {event?.image && (
               <img
-                src={event.imageUrl}
+                src={event.image}
                 className="h-40 w-full object-cover rounded"
               />
             )}
@@ -261,13 +263,13 @@ export default function EventsDashboard() {
 
             <div className="mt-3 flex gap-2">
               <Link
-                href={`/events/${event.id}`}
+                href={`/items/${event._id}`}
                 className="bg-green-500 text-white px-3 py-1 rounded"
               >
                 Details
               </Link>
               <button
-                onClick={() => handleDelete(event.id)}
+                onClick={() => handleDelete(event._id)}
                 className="bg-red-500 text-white px-3 py-1 rounded"
               >
                 Delete

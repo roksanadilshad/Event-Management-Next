@@ -9,8 +9,8 @@ import toast from "react-hot-toast";
 interface Product {
   _id: string;
   title: string;
-  shortDesc: string;
-  fullDesc: string;
+  shortDescription: string;
+  fullDescription: string;
   price: number;
   image?: string;
   time?: string;
@@ -92,8 +92,8 @@ const [editPriority, setEditPriority] = useState("");
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
     setEditTitle(product.title);
-    setEditShortDesc(product.shortDesc);
-    setEditFullDesc(product.fullDesc);
+    setEditShortDesc(product.shortDescription);
+    setEditFullDesc(product.fullDescription);
     setEditPrice(product.price.toString());
     setEditImageUrl(product.image || "");
     setEditTime(product.time || "");
@@ -115,11 +115,12 @@ const [editPriority, setEditPriority] = useState("");
           shortDesc: editShortDesc,
           fullDesc: editFullDesc,
           price: editPrice,
-          imageUrl: editImageUrl,
+          image: editImageUrl,   // FIXED
           time: editTime,
           location: editLocation,
           category: editCategory,
           priority: editPriority,
+          date: editingProduct.createdAt, 
         }),
       });
       const data = await res.json();
@@ -160,7 +161,7 @@ const [editPriority, setEditPriority] = useState("");
                 />
               )}
               <h2 className="text-lg font-bold">{product.title}</h2>
-              <p className="text-gray-600">{product.shortDesc}</p>
+              <p className="text-gray-600">{product.shortDescription}</p>
               <p className="mt-2 font-semibold">${product.price}</p>
               <p className="text-sm text-gray-400 mt-1">
                 Added on: {new Date(product.createdAt).toLocaleDateString()}

@@ -5,7 +5,7 @@ const client = new MongoClient(process.env.MONGODB_URI!);
 
 export async function GET(
     req: NextRequest, 
-    context: { params: Promise<{ id: string }> }
+    context: { params: { id: string } }
 ) {
   try {
     const { id } = await context.params;

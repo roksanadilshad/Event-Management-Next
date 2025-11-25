@@ -59,17 +59,18 @@ export async function PUT(
     const body = await req.json();
 
     const updatedEvent = {
-      title: body.title,
-      shortDescription: body.shortDesc,
-      fullDescription: body.fullDesc,
-      price: Number(body.price),
-      image: body.image,
+       title: body.title,
+      shortDescription: body.shortDesc,       // FIX
+      fullDescription: body.fullDesc,         // FIX
+      date: body.date,
       time: body.time,
       location: body.location,
       category: body.category,
+      image: body.image,                   // FIX
+      price: Number(body.price),
       priority: body.priority,
       userId: body.userId,
-      updatedAt: new Date(),
+      createdAt: new Date(),
     };
 
     const client = await clientPromise;

@@ -15,11 +15,7 @@ interface Item {
   image: string;
 }
 
-
 async function getItem(id: string): Promise<Item | null> {
-  
-
-  
   try {
     const res = await fetch(`http://localhost:3000/api/items/${id}`);
     if (!res.ok) return null;
@@ -30,6 +26,17 @@ async function getItem(id: string): Promise<Item | null> {
   }
 }
 
+async function getRelatedItems(currentId: string): Promise<Item[]> {
+  try {
+    const res = await fetch(`http://localhost:3000/api/items`);
+    const data: Item[] = await res.json();
+    return data.filter((item) => item.id !== currentId).slice(0, 3);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
 interface Props {
   params: { id: string };
 }
@@ -37,69 +44,110 @@ interface Props {
 const ItemPage = async ({ params }: Props) => {
   const { id } = await params;
   const item = await getItem(id);
+  const relatedEvents = await getRelatedItems(id);
 
-  if (!item) return (
-    <div className="flex justify-center items-center h-screen">
-      <p className="text-red-500 text-lg font-medium">Item not found</p>
-    </div>
-  );
-  //console.log(item);
-  
-
+  if (!item)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-red-500 text-lg font-medium">Item not found</p>
+      </div>
+    );
+console.log(relatedEvents)
   return (
-    <div className="max-w-5xl mx-auto p-6 md:p-10">
-      {/* Back Button */}
-      <Link
-        href="/items"
-        className="inline-block mb-6 text-blue-600 hover:text-blue-800 transition-colors font-medium"
-      >
-        &larr; Back to Events
-      </Link>
+    <div className="bg-[#FCF5EE] min-h-screen p-6 md:p-10">
+      <div className="max-w-6xl mx-auto">
 
-      {/* Main Layout */}
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden md:flex md:gap-6">
-        {/* Image Section */}
-        <div className="md:w-1/2 h-64 md:h-auto overflow-hidden">
-          <img
-            src={item.image}
-            alt={item.title}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-          />
-        </div>
+        {/* Back Button */}
+        <Link
+          href="/items"
+          className="inline-block mb-6 text-[#850E35] hover:text-[#EE6983] transition font-medium"
+        >
+          &larr; Back to Events
+        </Link>
 
-        {/* Info Section */}
-        <div className="md:w-1/2 p-6 flex flex-col justify-between">
-          <div>
-            {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
-              {item.title}
-            </h1>
+        {/* Main Container */}
+        <div className="bg-[#FFC4C4] text-[#850E35] shadow-lg rounded-2xl overflow-hidden md:flex md:gap-8 p-6">
 
-            {/* Meta Info */}
-            <div className="flex flex-wrap gap-3 text-gray-600 mb-4">
-              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
-                Date: {item.date}
-              </span>
-              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
-                Location: {item.location}
-              </span>
-              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
-                Price: ${item.price}
-              </span>
-              <span className="bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
-                Priority: {item.priority}
-              </span>
+          {/* Left: Image */}
+          <div className="md:w-1/2 rounded-xl overflow-hidden shadow-md">
+            <img
+              src={item.image}
+              alt={item.title}
+              className="w-full h-80 md:h-full object-cover transition-transform duration-300 hover:scale-105"
+            />
+          </div>
+
+          {/* Right: Info */}
+          <div className="md:w-1/2 flex flex-col justify-between mt-6 md:mt-0">
+            <div>
+              {/* Title */}
+              <h1 className="text-4xl font-bold mb-4 leading-tight">
+                {item.title}
+              </h1>
+
+              {/* Meta badges */}
+              <div className="flex flex-wrap gap-3 mb-5">
+                <span className="bg-white text-[#850E35] px-3 py-1 rounded-full text-sm shadow">
+                  🕒 {item.time}
+                </span>
+                <span className="bg-white text-[#850E35] px-3 py-1 rounded-full text-sm shadow">
+                  📍 {item.location}
+                </span>
+                <span className="bg-white text-[#850E35] px-3 py-1 rounded-full text-sm shadow">
+                  💰 ${item.price}
+                </span>
+                <span className="bg-white text-[#850E35] px-3 py-1 rounded-full text-sm shadow">
+                  ⭐ {item.priority}
+                </span>
+              </div>
+
+              {/* Description */}
+              <p className="text-[#850E35] leading-relaxed">
+                {item.fullDescription || item.shortDescription}
+              </p>
             </div>
 
-            {/* Full Description */}
-            <p className="text-gray-700 leading-relaxed">{item.fullDescription || item.shortDescription}</p>
-          </div>
-
-          {/* Action / CTA (Optional) */}
-          <div className="mt-6">
-            <BookNowButton eventId={item.id} eventTitle={item.title}></BookNowButton>
+            {/* CTA Button */}
+            <div className="mt-6">
+              <BookNowButton
+                eventId={item.id}
+                eventTitle={item.title}
+              />
+            </div>
           </div>
         </div>
+
+        {/* Related Events Section */}
+        {relatedEvents.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-3xl font-bold text-[#850E35] mb-6">Related Events</h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+  {relatedEvents.map((ev) => (
+    <div
+      key={ev._id}
+      className="bg-white rounded-xl shadow hover:shadow-xl transition p-4"
+    >
+      <img
+        src={ev.image}
+        alt={ev.title}
+        className="w-full h-40 object-cover rounded-lg mb-3"
+      />
+      <h3 className="font-semibold text-lg">{ev.title}</h3>
+      <p className="text-sm text-gray-600">{ev.shortDescription}</p>
+
+      <Link
+        href={`/items/${ev._id}`}
+        className="inline-block mt-2 text-[#EE6983] hover:underline text-sm font-medium"
+      >
+        View Details →
+      </Link>
+    </div>
+  ))}
+</div>
+          </div>
+        )}
+
       </div>
     </div>
   );
