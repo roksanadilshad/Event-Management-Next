@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import toast from "react-hot-toast";
+import Swal from "sweetalert2";
+import { HashLoader } from "react-spinners";
 
-// Event interface
 interface EventItem {
   _id: string;
   title: string;
@@ -21,7 +22,6 @@ interface EventItem {
   image: string;
 }
 
-// Add Event Form component
 function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
   const [user, setUser] = useState<any>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -30,29 +30,30 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
   const [fullDesc, setFullDesc] = useState("");
   const [price, setPrice] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-   const [time, setTime] = useState("");
+  const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
   const [location, setLocation] = useState("");
   const [category, setCategory] = useState("");
   const [priority, setPriority] = useState("");
   const router = useRouter();
 
- useEffect(() => {
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push("/login");
-      } else {
-        setUser(firebaseUser);
-      }
+      if (!firebaseUser) router.push("/login");
+      else setUser(firebaseUser);
       setCheckingAuth(false);
     });
-
     return () => unsubscribe();
   }, [router]);
 
-  if (checkingAuth) return <p className="p-6">Checking authentication...</p>;
+  if (checkingAuth)
+    return (
+      <div className="flex justify-center py-20">
+        <HashLoader color="#FFC4C4" size={80} />
+      </div>
+    );
 
-
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await fetch("/api/events", {
@@ -63,8 +64,8 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
           shortDesc,
           fullDesc,
           price,
-          image: imageUrl,   // FIX
-          date: new Date().toISOString(), // FIX (you were not sending date)
+          image: imageUrl,
+          date,
           time,
           location,
           category,
@@ -80,10 +81,17 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
       }
 
       toast.success("Event added successfully!");
-
       // Clear form
-      setTitle(""); setShortDesc(""); setFullDesc(""); setPrice(""); setImageUrl("");
-      setTime(""); setLocation(""); setCategory(""); setPriority("");
+      setTitle("");
+      setShortDesc("");
+      setFullDesc("");
+      setPrice("");
+      setImageUrl("");
+      setTime("");
+      setDate("");
+      setLocation("");
+      setCategory("");
+      setPriority("");
 
       onAdd(data.event);
       router.push("/items");
@@ -94,15 +102,18 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded shadow mb-6">
-      <h2 className="text-xl font-bold mb-4">Add New Event</h2>
+    <div className=" p-6 rounded-2xl shadow-md mb-6">
+      <div className="text-center">
+
+      <h2 className="text-2xl font-bold mb-4 text-[#850E35]">Add New Event</h2>
+      </div>
       <form className="space-y-3" onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
           required
         />
         <input
@@ -110,14 +121,14 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
           placeholder="Short Description"
           value={shortDesc}
           onChange={(e) => setShortDesc(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
           required
         />
         <textarea
           placeholder="Full Description"
           value={fullDesc}
           onChange={(e) => setFullDesc(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
           rows={3}
           required
         />
@@ -126,7 +137,7 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
           placeholder="Price"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
           required
         />
         <input
@@ -134,19 +145,47 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
           placeholder="Image URL (optional)"
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
         />
-        <input type="text" placeholder="Time (e.g., 09:00 AM - 05:00 PM)" value={time} onChange={(e) => setTime(e.target.value)} className="w-full p-2 border rounded" />
-
-        <input type="text" placeholder="Location" value={location} onChange={(e) => setLocation(e.target.value)} className="w-full p-2 border rounded" />
-
-        <input type="text" placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-2 border rounded" />
-
-        <input type="text" placeholder="Priority (Low/Medium/High)" value={priority} onChange={(e) => setPriority(e.target.value)} className="w-full p-2 border rounded" />
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
+          />
+          <input
+            type="text"
+            placeholder="Time (e.g., 09:00 AM - 05:00 PM)"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
+          />
+        </div>
+        <input
+          type="text"
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
+        />
+        <input
+          type="text"
+          placeholder="Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
+        />
+        <input
+          type="text"
+          placeholder="Priority (Low/Medium/High)"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
+        />
         <button
           type="submit"
-          className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          className="w-full py-3 bg-[#EE6983] text-white font-semibold rounded-lg shadow hover:bg-[#d94f6b] transition"
         >
           Add Event
         </button>
@@ -155,7 +194,6 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
   );
 }
 
-// Main Dashboard Page
 export default function EventsDashboard() {
   const [user, setUser] = useState<any>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -163,23 +201,16 @@ export default function EventsDashboard() {
   const [filteredEvents, setFilteredEvents] = useState<EventItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
-  
-  console.log(filteredEvents);
-  // Auth protection
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (!firebaseUser) {
-        router.push("/login");
-      } else {
-        setUser(firebaseUser);
-      }
+      if (!firebaseUser) router.push("/login");
+      else setUser(firebaseUser);
       setCheckingAuth(false);
     });
-
     return () => unsubscribe();
   }, [router]);
 
-  // Fetch events
   useEffect(() => {
     fetch("/api/events")
       .then((res) => res.json())
@@ -202,7 +233,16 @@ export default function EventsDashboard() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this event?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#850E35",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    });
+    if (!result.isConfirmed) return;
 
     try {
       const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
@@ -210,77 +250,99 @@ export default function EventsDashboard() {
 
       setEvents((prev) => prev.filter((e) => e._id !== id));
       setFilteredEvents((prev) => prev.filter((e) => e._id !== id));
+
       toast.success("Event deleted!");
+      Swal.fire({
+        title: "Deleted!",
+        text: "Your event has been deleted.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete event");
     }
   };
 
-  if (checkingAuth) return <p className="p-6">Checking authentication...</p>;
+  if (checkingAuth)
+    return (
+      <div className="flex py-40 justify-center items-center">
+        <HashLoader color="#FFC4C4" size={100} />
+      </div>
+    );
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2">All Events</h1>
-      <p className="text-gray-600 mb-4">Manage your events</p>
+    <div className="p-6 max-w-6xl mx-auto bg-[#FCF5EE] min-h-screen">
+      <AddEventForm
+        onAdd={(newEvent) => {
+          setEvents((prev) => [...prev, newEvent]);
+          setFilteredEvents((prev) => [...prev, newEvent]);
+        }}
+      />
 
-      {/* Add Event Form */}
-      <AddEventForm onAdd={(newEvent) => {
-        setEvents((prev) => [...prev, newEvent]);
-        setFilteredEvents((prev) => [...prev, newEvent]);
-      }} />
-
-      {/* Search */}
-      <div className="flex mb-6">
+      {/* Search Bar */}
+      <div className="flex mb-6 shadow-md rounded-lg overflow-hidden">
         <input
           type="text"
           placeholder="Search events..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-1 p-2 border rounded-l"
+          className="flex-1 p-3 border-none focus:outline-none"
         />
         <button
           onClick={handleSearch}
-          className="bg-blue-500 text-white px-4 rounded-r"
+          className="bg-[#EE6983] text-white px-6 font-medium hover:bg-[#d94f6b] transition"
         >
           Search
         </button>
       </div>
 
-      {/* Event List */}
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold text-[#850E35]">Your Events</h1>
+        <p className="text-[#850E35]/70">Manage your events</p>
+      </div>
+
+      {/* Event Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {filteredEvents.map((event) => (
-          <div key={event._id} className="border rounded p-4 shadow">
+          <div
+            key={event._id}
+            className="bg-[#FFC4C4] rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition"
+          >
             {event?.image && (
               <img
                 src={event.image}
-                className="h-40 w-full object-cover rounded"
+                className="h-48 w-full object-cover"
+                alt={event.title}
               />
             )}
-            <h2 className="font-semibold mt-2">{event?.title}</h2>
-            <p className="text-sm text-gray-600 line-clamp-2">{event?.shortDescription}</p>
-            <p className="font-semibold text-blue-600 mt-2">${event.price}</p>
-
-            <div className="mt-3 flex gap-2">
-              <Link
-                href={`/items/${event._id}`}
-                className="bg-green-500 text-white px-3 py-1 rounded"
-              >
-                Details
-              </Link>
-              <button
-                onClick={() => handleDelete(event._id)}
-                className="bg-red-500 text-white px-3 py-1 rounded"
-              >
-                Delete
-              </button>
+            <div className="p-4">
+              <h2 className="font-bold text-lg text-[#850E35]">{event.title}</h2>
+              <p className="text-[#850E35]/80 mt-1 line-clamp-2">{event.shortDescription}</p>
+              <p className="font-semibold text-[#850E35] mt-2">${event.price}</p>
+              <div className="flex gap-2 mt-3">
+                <Link
+                  href={`/items/${event._id}`}
+                  className="flex-1 text-center py-2 bg-[#EE6983] text-white rounded-lg hover:bg-[#d94f6b] transition"
+                >
+                  Details
+                </Link>
+                <button
+                  onClick={() => handleDelete(event._id)}
+                  className="flex-1 py-2 bg-[#850E35] text-white rounded-lg hover:bg-[#6a0c2a] transition"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
       {filteredEvents.length === 0 && (
-        <p className="text-center text-gray-500 mt-10">No events found.</p>
+        <p className="text-center text-[#850E35]/60 mt-10">No events found.</p>
       )}
     </div>
   );

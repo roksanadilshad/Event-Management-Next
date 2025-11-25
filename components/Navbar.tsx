@@ -136,7 +136,7 @@ export default function Navbar() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-2 mt-2">
+            <div className="space-y-2 bg-[#850E35] mt-2">
               <Link
                 href="/dashboard/add-product"
                 className="block px-3 py-2 hover:bg-gray-100 rounded"
