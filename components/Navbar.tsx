@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import Image from "next/image";
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -60,7 +61,9 @@ export default function Navbar() {
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 px-3 py-2 border rounded hover:bg-gray-100 transition"
               >
-                <img
+                <Image
+                width={500}      // specify actual width
+  height={400}  
                   src={user.photoURL || "/default-avatar.png"}
                   alt="user"
                   className="w-7 h-7 rounded-full"
@@ -72,16 +75,16 @@ export default function Navbar() {
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-[#850E35] text-[#FCF5EE] shadow rounded p-2 ">
                   <Link
-                    href="/dashboard/add-product"
+                    href="/dashboard/add-items"
                     className="block px-3 py-2 hover:bg-[#FFC4C4] transition-all hover:text-[#850E35] rounded"
                   > 
-                    Add Product
+                    Add items
                   </Link>
                   <Link
-                    href="/dashboard/manage-products"
+                    href="/dashboard/manage-items"
                     className="block px-3 py-2 hover:bg-[#FFC4C4] transition-all hover:text-[#850E35] rounded"
                   >
-                    Manage Products
+                    Manage items
                   </Link>
                   <button
                     onClick={handleLogout}

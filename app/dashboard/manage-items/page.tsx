@@ -3,8 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import toast from "react-hot-toast";
+import Image from "next/image";
+import Swal from "sweetalert2";
+import { HashLoader } from "react-spinners";
 
 interface Product {
   _id: string;
@@ -14,6 +17,7 @@ interface Product {
   price: number;
   image?: string;
   time?: string;
+  date: string;
   location?: string;
   category?: string;
   priority?: string;
@@ -22,7 +26,7 @@ interface Product {
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +38,7 @@ export default function Dashboard() {
   const [editPrice, setEditPrice] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
   const [editTime, setEditTime] = useState("");
+  const [editDate, setEditDate] = useState("");
   const [editLocation, setEditLocation] = useState("");
   const [editCategory, setEditCategory] = useState("");
   const [editPriority, setEditPriority] = useState("");
@@ -66,30 +71,59 @@ export default function Dashboard() {
       });
   };
 
-  useEffect(() => {
-    if (!checkingAuth && user) fetchProducts();
-  }, [checkingAuth, user]);
+ useEffect(() => {
+  const loadProducts = async () => {
+    if (!checkingAuth && user) {
+      await fetchProducts();
+    }
+  };
+
+  loadProducts();
+}, [checkingAuth, user]);
 
   if (checkingAuth)
-    return <p className="p-6 text-[#850E35] font-semibold">Checking authentication...</p>;
+    return <div className="flex justify-center py-40 items-center">
+  <HashLoader
+  color="#FFC4C4"
+  size={100}
+/>
+    </div>
   if (loading)
-    return <p className="p-6 text-[#850E35] font-semibold">Loading products...</p>;
+    return <div className="flex justify-center py-40 items-center">
+  <HashLoader
+  color="#FFC4C4"
+  size={100}
+/>
+    </div>
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this product?")) return;
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You won't be able to revert this!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#850E35",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, delete it!",
+  });
 
+  if (result.isConfirmed) {
     try {
       const res = await fetch(`/api/events/${id}`, { method: "DELETE" });
       const data = await res.json();
+
       if (data.success) {
         toast.success("Product deleted!");
-        fetchProducts();
-      } else toast.error("Failed to delete");
+        fetchProducts(); // refresh list
+      } else {
+        toast.error("Failed to delete");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Error deleting product");
     }
-  };
+  }
+};
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
@@ -99,6 +133,7 @@ export default function Dashboard() {
     setEditPrice(product.price.toString());
     setEditImageUrl(product.image || "");
     setEditTime(product.time || "");
+    setEditDate(product.date || "");
     setEditLocation(product.location || "");
     setEditCategory(product.category || "");
     setEditPriority(product.priority || "");
@@ -122,7 +157,7 @@ export default function Dashboard() {
           location: editLocation,
           category: editCategory,
           priority: editPriority,
-          date: editingProduct.createdAt,
+          date: editingProduct.date,
         }),
       });
       const data = await res.json();
@@ -164,12 +199,16 @@ export default function Dashboard() {
               className="bg-[#FFC4C4] rounded-xl shadow-lg overflow-hidden transition hover:shadow-2xl"
             >
               {product.image && (
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="h-48 w-full object-cover"
-                />
-              )}
+  <Image
+    src={product.image.startsWith("http")
+      ? product.image
+      : `/images/${product.image}`} // if stored in public/images
+    alt={product.title || "Product Image"}
+    width={600}
+    height={400}
+    className="object-cover rounded-md"
+  />
+)}
               <div className="p-4">
                 <h2 className="text-xl font-bold mb-1">{product.title}</h2>
                 <p className="text-[#850E35] mb-2 line-clamp-2">{product.shortDescription}</p>
@@ -248,6 +287,13 @@ export default function Dashboard() {
                 onChange={(e) => setEditTime(e.target.value)}
                 className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
                 placeholder="Time"
+              />
+              <input
+                type="date"
+                value={editDate}
+                onChange={(e) => setEditDate(e.target.value)}
+                className="w-full p-3 border-2 border-[#EE6983] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#EE6983]"
+                placeholder="Date"
               />
               <input
                 type="text"

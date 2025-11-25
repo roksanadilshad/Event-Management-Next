@@ -6,19 +6,33 @@ const client = new MongoClient(process.env.MONGODB_URI!);
 export async function GET() {
   try {
     await client.connect();
-    const db = client.db("eventsDB"); // change to your DB name
+    const db = client.db("eventsDB");
+
     const itemsCollection = db.collection("items");
+    const newEventsCollection = db.collection("newEvent");
 
-    const today = new Date();
+    const today = new Date().toISOString();
 
-    // Find events with date >= today
-    const upcomingEvents = await itemsCollection
-      .find({ date: { $gte: today.toISOString() } })
-      .sort({ date: 1 }) // earliest first
-      .limit(6)
-      .toArray();
+    // Fetch upcoming events from both collections
+    const [upcomingItems, upcomingNewEvents] = await Promise.all([
+      itemsCollection
+        .find({ date: { $gte: today } })
+        .sort({ date: 1 })
+        .limit(6)
+        .toArray(),
+      newEventsCollection
+        .find({ date: { $gte: today } })
+        .sort({ date: 1 })
+        .limit(6)
+        .toArray(),
+    ]);
 
-    return NextResponse.json(upcomingEvents);
+    // Combine both arrays and sort by date
+    const combinedEvents = [...upcomingItems, ...upcomingNewEvents].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    return NextResponse.json(combinedEvents);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch events" }, { status: 500 });

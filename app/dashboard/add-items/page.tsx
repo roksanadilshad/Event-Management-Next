@@ -3,10 +3,12 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 import { HashLoader } from "react-spinners";
+import Image from "next/image";
+
 
 interface EventItem {
   _id: string;
@@ -22,8 +24,8 @@ interface EventItem {
   image: string;
 }
 
-function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
-  const [user, setUser] = useState<any>(null);
+ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
+  const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [title, setTitle] = useState("");
   const [shortDesc, setShortDesc] = useState("");
@@ -53,6 +55,8 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
       </div>
     );
 
+    
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -70,7 +74,7 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
           location,
           category,
           priority,
-          userId: user.uid,
+          userId: user?.uid,
         }),
       });
 
@@ -100,6 +104,8 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
       toast.error("Error adding event");
     }
   };
+
+  
 
   return (
     <div className=" p-6 rounded-2xl shadow-md mb-6">
@@ -195,7 +201,7 @@ function AddEventForm({ onAdd }: { onAdd: (event: EventItem) => void }) {
 }
 
 export default function EventsDashboard() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [events, setEvents] = useState<EventItem[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<EventItem[]>([]);
@@ -208,8 +214,9 @@ export default function EventsDashboard() {
       else setUser(firebaseUser);
       setCheckingAuth(false);
     });
+    console.log(user);
     return () => unsubscribe();
-  }, [router]);
+  }, [router, user]);
 
   useEffect(() => {
     fetch("/api/events")
@@ -220,6 +227,16 @@ export default function EventsDashboard() {
       })
       .catch(console.error);
   }, []);
+
+  const isValidUrl = (url?: string) => {
+    try {
+      if (!url) return false;
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   const handleSearch = () => {
     const term = searchTerm.toLowerCase();
@@ -311,13 +328,17 @@ export default function EventsDashboard() {
             key={event._id}
             className="bg-[#FFC4C4] rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition"
           >
-            {event?.image && (
-              <img
-                src={event.image}
-                className="h-48 w-full object-cover"
-                alt={event.title}
-              />
-            )}
+            {isValidUrl(event?.image) && (
+  <div className="relative w-full h-48">
+   <Image
+  src={event.image}
+  alt="Our Story"
+  width={600}   // desired width
+  height={400}  // desired height
+  className="rounded-xl shadow-lg"
+/>
+  </div>
+)}
             <div className="p-4">
               <h2 className="font-bold text-lg text-[#850E35]">{event.title}</h2>
               <p className="text-[#850E35]/80 mt-1 line-clamp-2">{event.shortDescription}</p>

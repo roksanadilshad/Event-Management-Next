@@ -1,15 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient, ObjectId } from "mongodb";
 
-const client = new MongoClient(process.env.MONGODB_URI!);
+let cachedClient: MongoClient | null = null;
+
+export async function getClient() {
+  if (!cachedClient) {
+    cachedClient = new MongoClient(process.env.MONGODB_URI!);
+    await cachedClient.connect();
+  }
+  return cachedClient;
+}
 
 export async function GET(
     req: NextRequest, 
-    context: { params: { id: string } }
+    context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await context.params;
-    await client.connect();
+
+    if (!ObjectId.isValid(id)) {
+      return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
+    }
+
+    const client = await getClient();
     const db = client.db("eventsDB");
 
     const rawItem = (await db
@@ -44,7 +57,5 @@ export async function GET(
   } catch (error) {
     console.error(error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });
-  } finally {
-    await client.close();
   }
 }

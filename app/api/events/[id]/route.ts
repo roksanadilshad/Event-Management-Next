@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 
 // DELETE /api/events/[id]
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+ context: { params: Promise<{ id: string }>  }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
 
     if (!ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -43,11 +43,11 @@ export async function DELETE(
 
 // PUT /api/events/[id]
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context : { params:  Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { id } = await context.params;
 
     if (!ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -58,27 +58,27 @@ export async function PUT(
 
     const body = await req.json();
 
-    const updatedEvent = {
-       title: body.title,
-      shortDescription: body.shortDesc,       // FIX
-      fullDescription: body.fullDesc,         // FIX
-      date: body.date,
-      time: body.time,
-      location: body.location,
-      category: body.category,
-      image: body.image,                   // FIX
-      price: Number(body.price),
-      priority: body.priority,
-      userId: body.userId,
-      createdAt: new Date(),
-    };
+    // const updatedEvent = {
+    //    title: body.title,
+    //   shortDesc: body.shortDesc,    // correct
+    //   fullDesc: body.fullDesc,      // correct
+    //   date: body.date,
+    //   time: body.time,
+    //   location: body.location,
+    //   category: body.category,
+    //   image: body.image,            // correct
+    //   price: Number(body.price),
+    //   priority: body.priority,
+    //   userId: body.userId,
+    //   updatedAt: new Date(),
+    // };
 
     const client = await clientPromise;
     const db = client.db("eventsDB");
 
     const result = await db.collection("newEvent").updateOne(
       { _id: new ObjectId(id) },
-      { $set: updatedEvent }
+      { $set: body }
     );
 
     if (result.matchedCount === 0) {
@@ -87,10 +87,12 @@ export async function PUT(
         { status: 404 }
       );
     }
+ 
+     const updatedEvent = await db.collection("events").findOne({ _id: new ObjectId(id) }); 
 
     return NextResponse.json({
       success: true,
-      event: { _id: id, ...updatedEvent },
+      event: updatedEvent
     });
   } catch (error) {
     console.error("PUT ERROR:", error);

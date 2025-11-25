@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function AboutPage() {
   return (
@@ -22,7 +23,7 @@ export default function AboutPage() {
           className="text-center md:text-left md:flex md:items-center md:gap-12"
         >
           <div className="md:w-1/2 mb-8 md:mb-0">
-            <img
+            <Image
               src="https://i.pinimg.com/736x/40/6f/9d/406f9dfe137cca05f3830229db822840.jpg"
               alt="Our Story"
               className="rounded-xl shadow-lg w-full"
@@ -69,7 +70,7 @@ export default function AboutPage() {
               transition={{ duration: 0.5, delay: idx * 0.2 }}
               className="bg-[#FCF5EE] rounded-xl shadow-lg p-6 flex flex-col items-center text-center"
             >
-              <img src={member.img} alt={member.name} className="rounded-full w-28 h-28 mb-4 object-cover" />
+              <Image src={member.img} alt={member.name} className="rounded-full w-28 h-28 mb-4 object-cover" />
               <h3 className="font-semibold text-xl mb-1">{member.name}</h3>
               <p className="text-gray-600 text-sm">{member.role}</p>
             </motion.div>

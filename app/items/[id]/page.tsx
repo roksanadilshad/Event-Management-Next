@@ -1,9 +1,10 @@
 import BookNowButton from "@/components/BookButton";
 import ItemNotFound from "@/components/ItemNotFound";
+import Image from "next/image";
 import Link from "next/link";
 
 interface Item {
-  id: string;
+  _id: string;
   title: string;
   fullDescription: string;
   shortDescription: string;
@@ -31,7 +32,7 @@ async function getRelatedItems(currentId: string): Promise<Item[]> {
   try {
     const res = await fetch(`http://localhost:3000/api/items`);
     const data: Item[] = await res.json();
-    return data.filter((item) => item.id !== currentId).slice(0, 3);
+    return data.filter((item) => item._id !== currentId).slice(0, 3);
   } catch (error) {
     console.error(error);
     return [];
@@ -69,7 +70,9 @@ console.log(relatedEvents)
 
           {/* Left: Image */}
           <div className="md:w-1/2 rounded-xl overflow-hidden shadow-md">
-            <img
+            <Image
+            width={500}      // specify actual width
+  height={400}  
               src={item.image}
               alt={item.title}
               className="w-full h-80 md:h-full object-cover transition-transform duration-300 hover:scale-105"
@@ -112,7 +115,7 @@ console.log(relatedEvents)
             {/* CTA Button */}
             <div className="mt-6">
               <BookNowButton
-                eventId={item.id}
+                eventId={item._id}
                 eventTitle={item.title}
               />
              <div className="mt-6 w-full h-64 rounded-xl overflow-hidden shadow-lg">
@@ -148,7 +151,9 @@ console.log(relatedEvents)
       key={ev._id}
       className="bg-white rounded-xl shadow hover:shadow-xl transition p-4"
     >
-      <img
+      <Image
+      width={500}      // specify actual width
+  height={400}  
         src={ev.image}
         alt={ev.title}
         className="w-full h-40 object-cover rounded-lg mb-3"
